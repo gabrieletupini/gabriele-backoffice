@@ -84,6 +84,63 @@
     .card-link svg { width: 14px; height: 14px; }
     .card-repo { font-family: var(--mono); font-size: .74rem; color: var(--text-dim); margin-bottom: 10px; }
 
+    /* BILLING */
+    .billing { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+    .billing-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .billing-header h2 { font-size: 1.2rem; font-weight: 700; }
+    .billing-header h2 span { color: var(--text-muted); font-weight: 400; }
+    .billing-actions { display: flex; gap: 10px; }
+    .billing-actions a {
+      font-size: .78rem; font-weight: 500; font-family: var(--mono);
+      padding: 6px 16px; border-radius: 6px; transition: all .15s;
+    }
+    .btn-billing-primary { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(107,159,242,.3); }
+    .btn-billing-primary:hover { background: rgba(107,159,242,.2); text-decoration: none; }
+    .btn-billing-secondary { background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-billing-secondary:hover { border-color: var(--border-hover); color: var(--text); text-decoration: none; }
+
+    .billing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .billing-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 24px;
+    }
+    .billing-card h3 { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--text-dim); margin-bottom: 12px; }
+    .billing-stat { font-family: var(--font); font-size: 1.8rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .billing-stat-label { font-size: .8rem; color: var(--text-muted); font-weight: 400; }
+
+    .billing-table { width: 100%; border-collapse: collapse; }
+    .billing-table-wrap {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+      overflow: hidden;
+    }
+    .billing-table th {
+      font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em;
+      color: var(--text-dim); text-align: left; padding: 12px 16px;
+      background: var(--surface-2); border-bottom: 1px solid var(--border);
+    }
+    .billing-table td { padding: 12px 16px; font-size: .84rem; border-bottom: 1px solid var(--border); }
+    .billing-table tr:last-child td { border-bottom: none; }
+    .billing-table .amount { font-family: var(--mono); font-weight: 600; text-align: right; }
+    .billing-table th:last-child { text-align: right; }
+    .badge-paid { font-size: .68rem; font-weight: 600; background: var(--green-dim); color: var(--green); padding: 2px 8px; border-radius: 4px; }
+    .badge-pending { font-size: .68rem; font-weight: 600; background: var(--orange-dim); color: var(--orange); padding: 2px 8px; border-radius: 4px; }
+    .badge-template { font-size: .68rem; font-weight: 600; background: var(--purple-dim); color: var(--purple); padding: 2px 8px; border-radius: 4px; }
+
+    .billing-info { margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .billing-info-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 20px;
+    }
+    .billing-info-card h4 { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--text-dim); margin-bottom: 10px; }
+    .billing-info-card p { font-size: .84rem; color: var(--text-muted); line-height: 1.7; }
+    .billing-info-card strong { color: var(--text); font-weight: 600; }
+
+    @media (max-width: 640px) {
+      .billing-grid { grid-template-columns: 1fr; }
+      .billing-info { grid-template-columns: 1fr; }
+      .billing-table { font-size: .78rem; }
+    }
+
     /* FOOTER */
     .footer { max-width: 1200px; margin: 0 auto; padding: 40px 24px; text-align: center; border-top: 1px solid var(--border); }
     .footer p { font-size: .78rem; color: var(--text-dim); }
@@ -104,8 +161,7 @@
     <div class="header-inner">
       <h1>Gabriele Backoffice <span>/ projects</span></h1>
       <div style="display:flex;align-items:center;gap:16px">
-        <a href="fattura.html" style="font-size:.8rem;font-weight:500;color:var(--accent);font-family:var(--mono)">Fattura Template</a>
-        <a href="docs/contratto_gabriele_tupini_web_design.pdf" target="_blank" style="font-size:.8rem;font-weight:500;color:var(--accent);font-family:var(--mono)">Contratto PDF</a>
+        <a href="#billing" style="font-size:.8rem;font-weight:500;color:var(--accent);font-family:var(--mono)">Fatturazione</a>
         <div class="header-meta" id="countLabel">18 projects</div>
       </div>
     </div>
@@ -491,6 +547,99 @@
     </div>
 
   </main>
+
+  <!-- BILLING -->
+  <section class="billing" id="billing">
+    <div class="billing-header">
+      <h2>Fatturazione <span>/ web design</span></h2>
+      <div class="billing-actions">
+        <a href="fattura.html" class="btn-billing-primary">Nuova Fattura</a>
+        <a href="docs/contratto_gabriele_tupini_web_design.pdf" target="_blank" class="btn-billing-secondary">Contratto PDF</a>
+      </div>
+    </div>
+
+    <div class="billing-grid">
+      <div class="billing-card">
+        <h3>Prezzo standard</h3>
+        <div class="billing-stat">&euro; 500</div>
+        <div class="billing-stat-label">Lordo &mdash; refactoring + hosting 12 mesi + manutenzione Anno 1</div>
+      </div>
+      <div class="billing-card">
+        <h3>Netto prestatore</h3>
+        <div class="billing-stat">&euro; 400</div>
+        <div class="billing-stat-label">Dopo ritenuta d'acconto 20% a carico committente</div>
+      </div>
+    </div>
+
+    <div class="billing-table-wrap">
+      <table class="billing-table">
+        <thead>
+          <tr>
+            <th>Voce</th>
+            <th>Descrizione</th>
+            <th>Importo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Refactoring sito</strong></td>
+            <td>Codice, layout responsive, contact form, SEO base, deploy</td>
+            <td class="amount">&euro; 400</td>
+          </tr>
+          <tr>
+            <td><strong>Hosting + repo Git</strong></td>
+            <td>12 mesi dalla pubblicazione</td>
+            <td class="amount"><span class="badge-paid">incluso</span></td>
+          </tr>
+          <tr>
+            <td><strong>Manutenzione Anno 1</strong></td>
+            <td>Uptime 99%, guasti illimitati, backup mensili, 2 modifiche/mese</td>
+            <td class="amount">&euro; 100</td>
+          </tr>
+          <tr>
+            <td><strong>Free trial AI 30gg</strong></td>
+            <td>Chat + Voice, 500 conv. + 60 min inclusi</td>
+            <td class="amount"><span class="badge-paid">incluso</span></td>
+          </tr>
+          <tr>
+            <td><strong>Rinnovo manutenzione</strong></td>
+            <td>Dal secondo anno, tacito con disdetta 30gg</td>
+            <td class="amount"><span class="badge-template">&euro; 100/anno</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="billing-info">
+      <div class="billing-info-card">
+        <h4>Manutenzione inclusa</h4>
+        <p><strong>Aggiornamenti</strong> dipendenze e componenti<br>
+        <strong>Backup mensili</strong> automatici<br>
+        <strong>Uptime 99%</strong> SLA garantito<br>
+        <strong>2 modifiche/mese</strong> max 1h cad.<br>
+        <strong>Guasti illimitati</strong> risposta 24h, fix 72h<br>
+        <strong>WhatsApp + email</strong> canale diretto</p>
+      </div>
+      <div class="billing-info-card">
+        <h4>Trial AI incluso</h4>
+        <p><strong>Chat AI 24/7</strong> addestrato sul sito<br>
+        <strong>Voice AI</strong> in italiano da browser<br>
+        <strong>500 conversazioni</strong> + 60 min voice<br>
+        <strong>Lead in CSV</strong> consegnati al termine<br>
+        <strong>GDPR</strong> dati EU-compliant<br>
+        <strong>Nessun vincolo</strong> dopo 30 giorni</p>
+      </div>
+      <div class="billing-info-card">
+        <h4>Termini contrattuali</h4>
+        <p><strong>Tipo:</strong> Prestazione occasionale<br>
+        <strong>Art. 2222 c.c.</strong> &mdash; no IVA sotto &euro; 5.000<br>
+        <strong>Consegna:</strong> 15gg lavorativi<br>
+        <strong>Revisioni:</strong> 7gg per contestazioni<br>
+        <strong>Pagamento:</strong> bonifico entro 7gg<br>
+        <strong>Foro:</strong> Tribunale di Roma</p>
+      </div>
+    </div>
+  </section>
 
   <footer class="footer">
     <p>Gabriele Tupini &middot; Backoffice &middot; github.com/gabrieletupini</p>
