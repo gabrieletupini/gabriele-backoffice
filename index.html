@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backoffice | Gabriele Tupini</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0f1117; --surface: #1a1d27; --surface-2: #22262f;
+      --border: #2a2e3a; --border-hover: #3d4250;
+      --text: #e4e5e9; --text-muted: #8b8f9a; --text-dim: #5d6170;
+      --accent: #6b9ff2; --accent-dim: rgba(107,159,242,.12);
+      --green: #4ade80; --green-dim: rgba(74,222,128,.12);
+      --orange: #fb923c; --orange-dim: rgba(251,146,60,.12);
+      --purple: #a78bfa; --purple-dim: rgba(167,139,250,.12);
+      --pink: #f472b6; --pink-dim: rgba(244,114,182,.12);
+      --cyan: #22d3ee; --cyan-dim: rgba(34,211,238,.12);
+      --font: 'Inter', -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --r: 10px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+    a { text-decoration: none; color: var(--accent); }
+    a:hover { text-decoration: underline; }
+
+    /* HEADER */
+    .header { padding: 32px 24px 24px; border-bottom: 1px solid var(--border); }
+    .header-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+    .header h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -.02em; }
+    .header h1 span { color: var(--text-muted); font-weight: 400; }
+    .header-meta { font-size: .8rem; color: var(--text-dim); font-family: var(--mono); }
+
+    /* FILTERS */
+    .filters { padding: 20px 24px; border-bottom: 1px solid var(--border); }
+    .filters-inner { max-width: 1200px; margin: 0 auto; display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter-btn {
+      padding: 6px 16px; border-radius: 50px; font-size: .8rem; font-weight: 500;
+      background: var(--surface); border: 1px solid var(--border); color: var(--text-muted);
+      cursor: pointer; transition: all .15s; font-family: var(--font);
+    }
+    .filter-btn:hover { border-color: var(--border-hover); color: var(--text); }
+    .filter-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+    .filter-count { font-family: var(--mono); font-size: .72rem; margin-left: 4px; opacity: .6; }
+
+    /* GRID */
+    .grid { max-width: 1200px; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+
+    /* CARD */
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 24px; transition: all .2s; position: relative; overflow: hidden;
+    }
+    .card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .card-tag {
+      font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em;
+      padding: 3px 10px; border-radius: 4px;
+    }
+    .tag-app { background: var(--accent-dim); color: var(--accent); }
+    .tag-medical { background: var(--green-dim); color: var(--green); }
+    .tag-rental { background: var(--orange-dim); color: var(--orange); }
+    .tag-portfolio { background: var(--purple-dim); color: var(--purple); }
+    .tag-tool { background: var(--cyan-dim); color: var(--cyan); }
+    .tag-wip { background: var(--pink-dim); color: var(--pink); }
+
+    .card-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    .status-live { background: var(--green); box-shadow: 0 0 8px rgba(74,222,128,.4); }
+    .status-dev { background: var(--orange); }
+    .status-inactive { background: var(--text-dim); }
+
+    .card h2 { font-size: 1.05rem; font-weight: 600; margin-bottom: 6px; letter-spacing: -.01em; }
+    .card-desc { font-size: .84rem; color: var(--text-muted); font-weight: 300; margin-bottom: 16px; line-height: 1.5; }
+    .card-links { display: flex; gap: 12px; flex-wrap: wrap; }
+    .card-link {
+      font-size: .78rem; font-weight: 500; color: var(--text-dim);
+      display: inline-flex; align-items: center; gap: 4px; transition: color .15s;
+    }
+    .card-link:hover { color: var(--accent); text-decoration: none; }
+    .card-link svg { width: 14px; height: 14px; }
+    .card-repo { font-family: var(--mono); font-size: .74rem; color: var(--text-dim); margin-bottom: 10px; }
+
+    /* FOOTER */
+    .footer { max-width: 1200px; margin: 0 auto; padding: 40px 24px; text-align: center; border-top: 1px solid var(--border); }
+    .footer p { font-size: .78rem; color: var(--text-dim); }
+
+    /* RESPONSIVE */
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; padding: 16px; gap: 12px; }
+      .header { padding: 24px 16px 16px; }
+      .header h1 { font-size: 1.15rem; }
+      .filters { padding: 16px; }
+      .card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <h1>Gabriele Backoffice <span>/ projects</span></h1>
+      <div style="display:flex;align-items:center;gap:16px">
+        <a href="fattura.html" style="font-size:.8rem;font-weight:500;color:var(--accent);font-family:var(--mono)">Fattura Template</a>
+        <a href="docs/contratto_gabriele_tupini_web_design.pdf" target="_blank" style="font-size:.8rem;font-weight:500;color:var(--accent);font-family:var(--mono)">Contratto PDF</a>
+        <div class="header-meta" id="countLabel">18 projects</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="filters">
+    <div class="filters-inner" id="filters">
+      <button class="filter-btn active" data-filter="all">All<span class="filter-count">18</span></button>
+      <button class="filter-btn" data-filter="app">Apps<span class="filter-count">8</span></button>
+      <button class="filter-btn" data-filter="medical">Medical<span class="filter-count">4</span></button>
+      <button class="filter-btn" data-filter="rental">Rental<span class="filter-count">2</span></button>
+      <button class="filter-btn" data-filter="portfolio">Portfolio<span class="filter-count">2</span></button>
+      <button class="filter-btn" data-filter="tool">Tools<span class="filter-count">2</span></button>
+    </div>
+  </div>
+
+  <main class="grid" id="grid">
+
+    <!-- ═══ APPS ═══ -->
+
+    <div class="card" data-category="app">
+      <div class="card-top">
+        <span class="card-tag tag-app">App</span>
+        <div class="card-status status-live" title="Live"></div>
+      </div>
+      <h2>Gestore Utenze</h2>
+      <div class="card-repo">gestore-utenze</div>
+      <p class="card-desc">Gestisci bollette e abbonamenti ricorrenti. Organizza costi per account con Firebase sync.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/gestore-utenze/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/gestore-utenze" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <div class="card" data-category="app">
+      <div class="card-top">
+        <span class="card-tag tag-app">App</span>
+        <div class="card-status status-live" title="Live"></div>
+      </div>
+      <h2>Routiner</h2>
+      <div class="card-repo">routiner-app</div>
+      <p class="card-desc">Tracker di abitudini e routine quotidiane con streak, Google auth e Firestore.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/routiner-app/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/routiner-app" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <div class="card" data-category="app">
+      <div class="card-top">
+        <span class="card-tag tag-app">App</span>
+        <div class="card-status status-live" title="Live"></div>
+      </div>
+      <h2>Tradle</h2>
+      <div class="card-repo">tradle-app</div>
+      <p class="card-desc">Trading journal: importa operazioni da TradingView/IBKR, analisi P&amp;L, note e sync Firebase.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/tradle-app/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/tradle-app" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <div class="card" data-category="app">
+      <div class="card-top">
+        <span class="card-tag tag-app">App</span>
+        <div class="card-status status-live" title="Live"></div>
+      </div>
+      <h2>Dateflow</h2>
+      <div class="card-repo">game-app</div>
+      <p class="card-desc">Task e habit tracker con drag-and-drop, grafici, Firebase e export dati.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/game-app/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/game-app" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <div class="card" data-category="app">
+      <div class="card-top">
+        <span class="card-tag tag-app">App</span>
+        <div class="card-status status-live" title="Live"></div>
+      </div>
+      <h2>Forex Market Hours</h2>
+      <div class="card-repo">forex-market-hours-app</div>
+      <p class="card-desc">Orari di trading per le principali coppie valutarie con fusi orari.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/forex-market-hours-app/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/forex-market-hours-app" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <div class="card" data-category="app">
+      <div class="card-top">
+        <span class="card-tag tag-app">App</span>
+        <div class="card-status status-live" title="Live"></div>
+      </div>
+      <h2>Clout</h2>
+      <div class="card-repo">clout-app</div>
+      <p class="card-desc">Content creation quest tracker. Gestisci attivit&agrave; creative, traccia progressi settimanali.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/clout-app/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/clout-app" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <div class="card" data-category="app">
+      <div class="card-top">
+        <span class="card-tag tag-app">App</span>
+        <div class="card-status status-live" title="Live"></div>
+      </div>
+      <h2>Property Management</h2>
+      <div class="card-repo">property-management</div>
+      <p class="card-desc">Gestione propriet&agrave; immobiliari. React + TypeScript.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/property-management/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/property-management" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <div class="card" data-category="app">
+      <div class="card-top">
+        <span class="card-tag tag-app">App</span>
+        <div class="card-status status-dev" title="In development"></div>
+      </div>
+      <h2>Website Creator</h2>
+      <div class="card-repo">website-creator</div>
+      <p class="card-desc">AI Studio web app powered by Gemini API per generare siti web.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/website-creator/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/website-creator" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══ MEDICAL ═══ -->
+
+    <div class="card" data-category="medical">
+      <div class="card-top">
+        <span class="card-tag tag-medical">Medical</span>
+        <div class="card-status status-live" title="Live"></div>
+      </div>
+      <h2>Dott. Giulio Bicciolo</h2>
+      <div class="card-repo">giulio-bicciolo</div>
+      <p class="card-desc">Sito ORL per il Dott. Bicciolo. Otorinolaringoiatra, Roma e Terni. 6000+ interventi.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/giulio-bicciolo/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/giulio-bicciolo" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <div class="card" data-category="medical">
+      <div class="card-top">
+        <span class="card-tag tag-medical">Medical</span>
+        <div class="card-status status-dev" title="v2 in progress"></div>
+      </div>
+      <h2>Dott. Bicciolo v2</h2>
+      <div class="card-repo">giulio-bicciolo-2</div>
+      <p class="card-desc">Redesign minimal del sito Bicciolo. Meno testo, pi&ugrave; impatto visivo e numeri.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/giulio-bicciolo-2/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/giulio-bicciolo-2" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <div class="card" data-category="medical">
+      <div class="card-top">
+        <span class="card-tag tag-medical">Medical</span>
+        <div class="card-status status-live" title="Live"></div>
+      </div>
+      <h2>Centro Medico Villanova</h2>
+      <div class="card-repo">centromedicovillanova</div>
+      <p class="card-desc">Sito per centro medico a Milano. 6 specialit&agrave; mediche, prenotazioni e assicurazioni.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/centromedicovillanova/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/centromedicovillanova" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <div class="card" data-category="medical">
+      <div class="card-top">
+        <span class="card-tag tag-medical">Medical</span>
+        <div class="card-status status-live" title="Live"></div>
+      </div>
+      <h2>iDentitale</h2>
+      <div class="card-repo">dental-website</div>
+      <p class="card-desc">Sito odontoiatrico per il Dr. Iv&aacute;n S&aacute;nchez. Ortodonzia digitale e smile design, Roma.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/dental-website/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/dental-website" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══ RENTAL ═══ -->
+
+    <div class="card" data-category="rental">
+      <div class="card-top">
+        <span class="card-tag tag-rental">Rental</span>
+        <div class="card-status status-live" title="Live"></div>
+      </div>
+      <h2>Casa Rosa dei Venti</h2>
+      <div class="card-repo">casa-rosa-pss</div>
+      <p class="card-desc">Sito per casa vacanze a Monte Argentario, Pozzarello. Prenotazione e info.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/casa-rosa-pss/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/casa-rosa-pss" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <div class="card" data-category="rental">
+      <div class="card-top">
+        <span class="card-tag tag-rental">Rental</span>
+        <div class="card-status status-live" title="Live"></div>
+      </div>
+      <h2>Rental Pricing Italia</h2>
+      <div class="card-repo">rental-pricing-ita</div>
+      <p class="card-desc">Analisi prezzi stagionali per affitti brevi Rosa dei Venti su Booking.com, Monte Argentario.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/rental-pricing-ita/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/rental-pricing-ita" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══ PORTFOLIO ═══ -->
+
+    <div class="card" data-category="portfolio">
+      <div class="card-top">
+        <span class="card-tag tag-portfolio">Portfolio</span>
+        <div class="card-status status-live" title="Live"></div>
+      </div>
+      <h2>gabrieletupini.dev</h2>
+      <div class="card-repo">gabrieletupini-dev</div>
+      <p class="card-desc">Sito portfolio personale.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/gabrieletupini-dev/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/gabrieletupini-dev" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <div class="card" data-category="portfolio">
+      <div class="card-top">
+        <span class="card-tag tag-portfolio">Portfolio</span>
+        <div class="card-status status-live" title="Live"></div>
+      </div>
+      <h2>Digital Consulting</h2>
+      <div class="card-repo">digital-consulting-webpage</div>
+      <p class="card-desc">Pagina di consulenza digitale. React + Vite.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/digital-consulting-webpage/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/digital-consulting-webpage" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══ TOOLS ═══ -->
+
+    <div class="card" data-category="tool">
+      <div class="card-top">
+        <span class="card-tag tag-tool">Tool</span>
+        <div class="card-status status-live" title="Live"></div>
+      </div>
+      <h2>Website Showcase</h2>
+      <div class="card-repo">website-showcase-one</div>
+      <p class="card-desc">Showcase di progetti web. React + TypeScript.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://gabrieletupini.github.io/website-showcase-one/" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          Live
+        </a>
+        <a class="card-link" href="https://github.com/gabrieletupini/website-showcase-one" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+    <div class="card" data-category="tool">
+      <div class="card-top">
+        <span class="card-tag tag-tool">Tool</span>
+        <div class="card-status status-inactive" title="Placeholder"></div>
+      </div>
+      <h2>Elendil</h2>
+      <div class="card-repo">elendil</div>
+      <p class="card-desc">Progetto placeholder / in fase di definizione.</p>
+      <div class="card-links">
+        <a class="card-link" href="https://github.com/gabrieletupini/elendil" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Repo
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <p>Gabriele Tupini &middot; Backoffice &middot; github.com/gabrieletupini</p>
+  </footer>
+
+  <script>
+    // Filters
+    const btns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.card');
+    const countLabel = document.getElementById('countLabel');
+
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const f = btn.dataset.filter;
+        let visible = 0;
+        cards.forEach(card => {
+          const show = f === 'all' || card.dataset.category === f;
+          card.style.display = show ? '' : 'none';
+          if (show) visible++;
+        });
+        countLabel.textContent = visible + ' project' + (visible !== 1 ? 's' : '');
+      });
+    });
+  </script>
+</body>
+</html>

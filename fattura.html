@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fattura — Gabriele Tupini Web Design</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f4f5f7; color: #1a1a2e; padding: 40px 20px; -webkit-font-smoothing: antialiased; }
+    .invoice { max-width: 800px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,.08); overflow: hidden; }
+
+    .invoice-header { background: #1a1d27; color: #fff; padding: 40px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .invoice-brand h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+    .invoice-brand p { font-size: .82rem; color: rgba(255,255,255,.6); }
+    .invoice-title { text-align: right; }
+    .invoice-title h2 { font-size: 2rem; font-weight: 700; letter-spacing: .04em; color: #6b9ff2; }
+    .invoice-title .invoice-num { font-size: .85rem; color: rgba(255,255,255,.5); margin-top: 4px; }
+
+    .invoice-meta { padding: 32px 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; border-bottom: 1px solid #eee; }
+    .meta-block label { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: #999; display: block; margin-bottom: 6px; }
+    .meta-block p { font-size: .88rem; line-height: 1.6; }
+    .meta-block strong { font-weight: 600; }
+
+    .invoice-body { padding: 0 40px 32px; }
+    .invoice-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+    .invoice-table th { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: #999; text-align: left; padding: 12px 0; border-bottom: 2px solid #eee; }
+    .invoice-table th:last-child, .invoice-table td:last-child { text-align: right; }
+    .invoice-table td { padding: 14px 0; border-bottom: 1px solid #f0f0f0; font-size: .88rem; }
+    .invoice-table tbody tr:last-child td { border-bottom: 2px solid #eee; }
+
+    .invoice-totals { padding: 24px 40px 32px; display: flex; justify-content: flex-end; }
+    .totals-box { width: 280px; }
+    .totals-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: .88rem; }
+    .totals-row.total { font-weight: 700; font-size: 1.1rem; border-top: 2px solid #1a1d27; padding-top: 12px; margin-top: 4px; }
+
+    .invoice-footer { padding: 24px 40px; background: #fafafa; border-top: 1px solid #eee; }
+    .invoice-footer p { font-size: .78rem; color: #999; line-height: 1.6; }
+    .invoice-footer a { color: #6b9ff2; }
+
+    .invoice-actions { text-align: center; padding: 24px; }
+    .btn-print { background: #1a1d27; color: #fff; border: none; padding: 12px 32px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: .88rem; font-weight: 600; cursor: pointer; transition: background .2s; }
+    .btn-print:hover { background: #2a2e3a; }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .invoice { box-shadow: none; border-radius: 0; }
+      .invoice-actions { display: none; }
+    }
+    @media (max-width: 600px) {
+      .invoice-header { flex-direction: column; gap: 16px; padding: 24px; }
+      .invoice-title { text-align: left; }
+      .invoice-meta { grid-template-columns: 1fr; padding: 24px; gap: 20px; }
+      .invoice-body { padding: 0 24px 24px; }
+      .invoice-totals { padding: 16px 24px 24px; }
+      .invoice-footer { padding: 16px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="invoice">
+    <div class="invoice-header">
+      <div class="invoice-brand">
+        <h1>Gabriele Tupini</h1>
+        <p>Web Design &amp; Development</p>
+      </div>
+      <div class="invoice-title">
+        <h2>FATTURA</h2>
+        <div class="invoice-num" id="invoiceNum">N. 001/2025</div>
+      </div>
+    </div>
+
+    <div class="invoice-meta">
+      <div class="meta-block">
+        <label>Da</label>
+        <p><strong>Gabriele Tupini</strong><br>
+        P.IVA: ______________<br>
+        Email: gabriele@email.com<br>
+        Tel: +39 ___ ___ ____</p>
+      </div>
+      <div class="meta-block">
+        <label>A</label>
+        <p><strong id="clientName">Nome Cliente</strong><br>
+        <span id="clientDetails">P.IVA / C.F.: ______________<br>
+        Indirizzo: ______________</span></p>
+      </div>
+      <div class="meta-block">
+        <label>Data emissione</label>
+        <p id="invoiceDate">__/__/2025</p>
+      </div>
+      <div class="meta-block">
+        <label>Scadenza pagamento</label>
+        <p id="dueDate">__/__/2025</p>
+      </div>
+    </div>
+
+    <div class="invoice-body">
+      <table class="invoice-table">
+        <thead>
+          <tr>
+            <th>Descrizione</th>
+            <th>Qt&agrave;</th>
+            <th>Prezzo unit.</th>
+            <th>Totale</th>
+          </tr>
+        </thead>
+        <tbody id="invoiceItems">
+          <tr>
+            <td>Progettazione e sviluppo sito web</td>
+            <td>1</td>
+            <td>&euro; 0,00</td>
+            <td>&euro; 0,00</td>
+          </tr>
+          <tr>
+            <td>Hosting e deployment (GitHub Pages + dominio)</td>
+            <td>1</td>
+            <td>&euro; 0,00</td>
+            <td>&euro; 0,00</td>
+          </tr>
+          <tr>
+            <td>Ottimizzazione SEO e Open Graph</td>
+            <td>1</td>
+            <td>&euro; 0,00</td>
+            <td>&euro; 0,00</td>
+          </tr>
+          <tr>
+            <td>Design responsive (mobile/tablet/desktop)</td>
+            <td>1</td>
+            <td>&euro; 0,00</td>
+            <td>&euro; 0,00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="invoice-totals">
+      <div class="totals-box">
+        <div class="totals-row"><span>Subtotale</span><span>&euro; 0,00</span></div>
+        <div class="totals-row"><span>IVA (22%)</span><span>&euro; 0,00</span></div>
+        <div class="totals-row"><span>Rivalsa INPS (4%)</span><span>&euro; 0,00</span></div>
+        <div class="totals-row total"><span>Totale</span><span>&euro; 0,00</span></div>
+      </div>
+    </div>
+
+    <div class="invoice-footer">
+      <p><strong>Modalit&agrave; di pagamento:</strong> Bonifico bancario<br>
+      IBAN: ________________________<br>
+      Intestato a: Gabriele Tupini</p>
+      <p style="margin-top:12px"><strong>Note:</strong> Pagamento entro 30 giorni dalla data di emissione.</p>
+      <p style="margin-top:12px">
+        <a href="docs/contratto_gabriele_tupini_web_design.pdf" target="_blank">Scarica contratto web design (PDF)</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="invoice-actions">
+    <button class="btn-print" onclick="window.print()">Stampa / Salva PDF</button>
+  </div>
+
+</body>
+</html>
